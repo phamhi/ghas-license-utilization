@@ -10,6 +10,9 @@ logger = get_logger()
 def main():
     # Parse arguments provided
     args, token = parse_arguments()
+    if args.debug:
+        logger.setLevel("DEBUG")
+        logger.debug("Debug mode activated.")
 
     # Gather all data needed for the report - all orgs in the enterprise, repositories in orgs and active committers in repositories
     orgs_in_ent = get_organizations(args, token)

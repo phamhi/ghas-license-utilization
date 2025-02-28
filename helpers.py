@@ -55,6 +55,12 @@ def parse_arguments():
         required=False,
         default=0,
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable debug logging",
+        required=False,
+    )
     args = parser.parse_args()
 
     if args.enterprise is None and args.organization is None:

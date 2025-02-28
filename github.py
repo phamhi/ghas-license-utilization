@@ -69,6 +69,7 @@ def get_ghas_status_for_repos(org, token):
     repos = []
 
     while True:
+        logger.debug(f"GET request to URL: {url} with params: {{'page': {page}}}")
         response = requests.get(url, headers=headers, params={"page": page})
 
         handle_rate_limit(response)
@@ -100,6 +101,9 @@ def get_active_committers_in_last_90_days(org, repo, token):
 
     end_cursor = None
     while True:
+        since = (datetime.now() - timedelta(days=90)).isoformat()
+        variables = {"org": org, "repo": repo, "since": since, "after": end_cursor}
+        logger.debug(f"POST request to URL: {url} with payload: variables={variables}")
         query = """
         query getCommitters($org: String!, $repo: String!, $since: GitTimestamp!, $after: String) {
             repository(owner: $org, name: $repo) {
@@ -133,9 +137,6 @@ def get_active_committers_in_last_90_days(org, repo, token):
             }
         }
         """
-        hasNextPage = False
-        since = (datetime.now() - timedelta(days=90)).isoformat()
-        variables = {"org": org, "repo": repo, "since": since, "after": end_cursor}
         payload = {"query": query, "variables": variables}
         response = requests.post(url, headers=headers, json=payload)
 
@@ -188,6 +189,8 @@ def get_orgs_in_ent(enterprise_name, token):
     orgs = []
     end_cursor = None
     while True:
+        variables = {"enterprise": enterprise_name, "after": end_cursor}
+        logger.debug(f"POST request to URL: {url} with variables: {variables}")
         query = """
         query getOrgsInEnterprise($enterprise: String!, $after: String) {
             enterprise(slug: $enterprise) {
@@ -203,7 +206,6 @@ def get_orgs_in_ent(enterprise_name, token):
             }
         }
         """
-        variables = {"enterprise": enterprise_name, "after": end_cursor}
         payload = {"query": query, "variables": variables}
         response = requests.post(url, headers=headers, json=payload)
 
